@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -5,7 +6,8 @@
     <application
         android:allowBackup="true"
         android:label="TOPFM_NYH"
-        android:theme="@style/AppTheme">
+        android:supportsRtl="true"
+        android:theme="@android:style/Theme.Material.NoActionBar">
 
         <activity
             android:name=".MainActivity"
@@ -17,7 +19,6 @@
             </intent-filter>
 
         </activity>
-
     </application>
 
 </manifest>
