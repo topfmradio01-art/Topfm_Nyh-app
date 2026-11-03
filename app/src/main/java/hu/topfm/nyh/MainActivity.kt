@@ -1,23 +1,23 @@
-
 package hu.topfm.nyh
 
 import android.app.Activity
+import android.content.ComponentName
 import android.os.Bundle
-import android.media.MediaPlayer
-import android.media.AudioAttributes
 import android.graphics.Color
 import android.view.Gravity
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.media3.common.MediaItem
+import androidx.media3.common.MediaMetadata
+import androidx.media3.session.MediaController
+import androidx.media3.session.SessionToken
+import com.google.common.util.concurrent.ListenableFuture
 
 class MainActivity : Activity() {
 
-    private var player: MediaPlayer? = null
-    private var isLoading = false
-    private var isPlaying = false
-
-    private val streamUrl = "https://s02.diazol.hu:10012/stream"
+    private var controllerFuture: ListenableFuture<MediaController>? = null
+    private var mediaController: MediaController? = null
 
     private lateinit var statusText: TextView
     private lateinit var playButton: Button
@@ -50,7 +50,7 @@ class MainActivity : Activity() {
         }
 
         statusText = TextView(this).apply {
-            text = "ÉLŐ ADÁSRA KÉSZ"
+            text = "Kapcsolódás..."
             textSize = 16f
             setTextColor(Color.rgb(212, 175, 55))
             gravity = Gravity.CENTER
@@ -62,11 +62,7 @@ class MainActivity : Activity() {
             setTextColor(Color.BLACK)
             setBackgroundColor(Color.rgb(212, 175, 55))
             setOnClickListener {
-                if (isPlaying || isLoading) {
-                    stopRadio()
-                } else {
-                    startRadio()
-                }
+                toggleRadio()
             }
         }
 
@@ -76,78 +72,70 @@ class MainActivity : Activity() {
         layout.addView(playButton)
 
         setContentView(layout)
+
+        connectToRadioService()
     }
 
-    private fun startRadio() {
-        stopRadio()
-
-        isLoading = true
-        statusText.text = "Kapcsolódás..."
-        playButton.text = "LEÁLLÍTÁS"
-
-        val newPlayer = MediaPlayer()
-        player = newPlayer
-
-        newPlayer.setAudioAttributes(
-            AudioAttributes.Builder()
-                .setUsage(AudioAttributes.USAGE_MEDIA)
-                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                .build()
+    private fun connectToRadioService() {
+        val token = SessionToken(
+            this,
+            ComponentName(this, RadioService::class.java)
         )
 
-        newPlayer.setOnPreparedListener { mp ->
-            isLoading = false
-            isPlaying = true
-            statusText.text = "ÉLŐ ADÁS"
-            mp.start()
-        }
+        controllerFuture = MediaController.Builder(this, token)
+            .buildAsync()
 
-        newPlayer.setOnErrorListener { _, _, _ ->
-            stopRadio()
-            statusText.text = "Kapcsolódási hiba"
-            true
-        }
-
-        try {
-            newPlayer.setDataSource(streamUrl)
-            newPlayer.prepareAsync()
-        } catch (e: Exception) {
-            stopRadio()
-            statusText.text = "Nem sikerült elindítani"
-        }
+        controllerFuture?.addListener({
+            try {
+                mediaController = controllerFuture?.get()
+                statusText.text = "ÉLŐ ADÁSRA KÉSZ"
+                updateButton()
+            } catch (e: Exception) {
+                statusText.text = "Kapcsolódási hiba"
+            }
+        }, { command -> runOnUiThread(command) })
     }
 
-    private fun stopRadio() {
-        isLoading = false
-        isPlaying = false
+    private fun toggleRadio() {
+        val controller = mediaController ?: return
 
-        player?.let {
-            try {
-                it.setOnPreparedListener(null)
-                it.setOnErrorListener(null)
-                it.stop()
-            } catch (_: Exception) {
-            }
-
-            try {
-                it.release()
-            } catch (_: Exception) {
-            }
-        }
-
-        player = null
-
-        if (::playButton.isInitialized) {
-            playButton.text = "LEJÁTSZÁS"
-        }
-
-        if (::statusText.isInitialized) {
+        if (controller.isPlaying || controller.playWhenReady) {
+            controller.pause()
             statusText.text = "LEÁLLÍTVA"
+        } else {
+            val metadata = MediaMetadata.Builder()
+                .setTitle("TOPFM_NYH")
+                .setArtist("Csak TOP slágerek")
+                .build()
+
+            val item = MediaItem.Builder()
+                .setUri("https://s02.diazol.hu:10012/stream")
+                .setMediaMetadata(metadata)
+                .build()
+
+            controller.setMediaItem(item)
+            controller.prepare()
+            controller.play()
+            statusText.text = "KAPCSOLÓDÁS..."
         }
+
+        updateButton()
+    }
+
+    private fun updateButton() {
+        val controller = mediaController ?: return
+        playButton.text =
+            if (controller.isPlaying || controller.playWhenReady) {
+                "SZÜNET"
+            } else {
+                "LEJÁTSZÁS"
+            }
     }
 
     override fun onDestroy() {
-        stopRadio()
+        controllerFuture?.let {
+            MediaController.releaseFuture(it)
+        }
         super.onDestroy()
     }
 }
