@@ -79,38 +79,41 @@ class MainActivity : Activity() {
     }
 
     private fun startRadio() {
+        stopRadio()
+
         isLoading = true
         statusText.text = "Kapcsolódás..."
         playButton.text = "LEÁLLÍTÁS"
 
-        player = MediaPlayer().apply {
-            setAudioAttributes(
-                AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_MEDIA)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                    .build()
-            )
+        val newPlayer = MediaPlayer()
+        player = newPlayer
 
-            setOnPreparedListener {
-                isLoading = false
-                isPlaying = true
-                statusText.text = "ÉLŐ ADÁS"
-                start()
-            }
+        newPlayer.setAudioAttributes(
+            AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_MEDIA)
+                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                .build()
+        )
 
-            setOnErrorListener { _, _, _ ->
-                stopRadio()
-                statusText.text = "Kapcsolódási hiba"
-                true
-            }
+        newPlayer.setOnPreparedListener { mp ->
+            isLoading = false
+            isPlaying = true
+            statusText.text = "ÉLŐ ADÁS"
+            mp.start()
+        }
 
-            try {
-                setDataSource(streamUrl)
-                prepareAsync()
-            } catch (e: Exception) {
-                stopRadio()
-                statusText.text = "Nem sikerült elindítani"
-            }
+        newPlayer.setOnErrorListener { _, _, _ ->
+            stopRadio()
+            statusText.text = "Kapcsolódási hiba"
+            true
+        }
+
+        try {
+            newPlayer.setDataSource(streamUrl)
+            newPlayer.prepareAsync()
+        } catch (e: Exception) {
+            stopRadio()
+            statusText.text = "Nem sikerült elindítani"
         }
     }
 
@@ -120,15 +123,27 @@ class MainActivity : Activity() {
 
         player?.let {
             try {
-                if (it.isPlaying) it.stop()
+                it.setOnPreparedListener(null)
+                it.setOnErrorListener(null)
+                it.stop()
+            } catch (_: Exception) {
+            }
+
+            try {
                 it.release()
             } catch (_: Exception) {
             }
         }
 
         player = null
-        playButton.text = "LEJÁTSZÁS"
-        statusText.text = "LEÁLLÍTVA"
+
+        if (::playButton.isInitialized) {
+            playButton.text = "LEJÁTSZÁS"
+        }
+
+        if (::statusText.isInitialized) {
+            statusText.text = "LEÁLLÍTVA"
+        }
     }
 
     override fun onDestroy() {
