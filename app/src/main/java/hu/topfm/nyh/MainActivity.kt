@@ -45,7 +45,16 @@ class MainActivity : Activity() {
         }
 
         val logo = ImageView(this).apply {
-            setImageResource(R.drawable.topfm_logo)
+            val logoId = resources.getIdentifier(
+                "topfm_logo",
+                "drawable",
+                packageName
+            )
+
+            if (logoId != 0) {
+                setImageResource(logoId)
+            }
+
             scaleType = ImageView.ScaleType.FIT_CENTER
             adjustViewBounds = true
         }
@@ -67,13 +76,7 @@ class MainActivity : Activity() {
             gravity = Gravity.CENTER
         }
 
-        layout.addView(
-            title,
-            LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
-        )
+        layout.addView(title)
 
         val slogan = TextView(this).apply {
             text = "CSAK TOP SLÁGEREK"
