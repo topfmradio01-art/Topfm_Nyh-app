@@ -45,18 +45,9 @@ class MainActivity : Activity() {
         }
 
         val logo = ImageView(this).apply {
-            val logoId = resources.getIdentifier(
-                "topfm_logo",
-                "drawable",
-                packageName
-            )
-
-            if (logoId != 0) {
-                setImageResource(logoId)
-            }
-
-            scaleType = ImageView.ScaleType.FIT_CENTER
-            adjustViewBounds = true
+    setImageResource(R.drawable.topfm_logo)
+    scaleType = ImageView.ScaleType.FIT_CENTER
+    adjustViewBounds = true
         }
 
         layout.addView(
