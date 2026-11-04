@@ -46,11 +46,6 @@ class MainActivity : Activity() {
             setBackgroundColor(Color.rgb(12, 12, 12))
         }
 
-        val logo = ImageView(this).apply {
-    val logoBitmap = assets.open("topfm_logo.png").use {
-    BitmapFactory.decodeStream(it)
-}
-setImageBitmap(logoBitmap)
     scaleType = ImageView.ScaleType.FIT_CENTER
     adjustViewBounds = true
         }
