@@ -47,7 +47,10 @@ class MainActivity : Activity() {
         }
 
         val logo = ImageView(this).apply {
-    setImageResource(R.drawable.topfm_logo)
+    val logoBitmap = assets.open("topfm_logo.png").use {
+    BitmapFactory.decodeStream(it)
+}
+setImageBitmap(logoBitmap)
     scaleType = ImageView.ScaleType.FIT_CENTER
     adjustViewBounds = true
         }
