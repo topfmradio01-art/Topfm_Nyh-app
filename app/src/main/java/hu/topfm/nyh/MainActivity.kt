@@ -8,6 +8,8 @@ import android.view.Gravity
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
+import android.graphics.BitmapFactory
+import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
