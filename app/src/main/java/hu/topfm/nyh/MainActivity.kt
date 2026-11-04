@@ -1,20 +1,20 @@
-
 package hu.topfm.nyh
 
 import android.app.Activity
 import android.content.ComponentName
 import android.os.Bundle
 import android.graphics.Color
-import android.graphics.Typeface
 import android.view.Gravity
+import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.ScrollView
 import android.widget.TextView
-import androidx.media3.common.MediaItem
-import androidx.media3.common.MediaMetadata
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
+import androidx.media3.common.MediaItem
+import androidx.media3.common.MediaMetadata
 import com.google.common.util.concurrent.ListenableFuture
 
 class MainActivity : Activity() {
@@ -25,30 +25,27 @@ class MainActivity : Activity() {
     private lateinit var statusText: TextView
     private lateinit var playButton: Button
 
-    private val gold = Color.rgb(212, 175, 55)
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         window.statusBarColor = Color.BLACK
         window.navigationBarColor = Color.BLACK
 
+        val scrollView = ScrollView(this).apply {
+            isFillViewport = true
+            setBackgroundColor(Color.rgb(12, 12, 12))
+            isVerticalScrollBarEnabled = false
+        }
+
         val layout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            gravity = Gravity.CENTER
-            setPadding(24, 16, 24, 16)
-            setBackgroundColor(Color.rgb(10, 10, 10))
+            gravity = Gravity.CENTER_HORIZONTAL
+            setPadding(dp(24), dp(24), dp(24), dp(24))
+            setBackgroundColor(Color.rgb(12, 12, 12))
         }
 
         val logo = ImageView(this).apply {
-            val logoId = resources.getIdentifier(
-    "topfm_logo",
-    "drawable",
-    packageName
-)
-if (logoId != 0) {
-    setImageResource(logoId)
-}
+            setImageResource(R.drawable.topfm_logo)
             scaleType = ImageView.ScaleType.FIT_CENTER
             adjustViewBounds = true
         }
@@ -56,32 +53,31 @@ if (logoId != 0) {
         layout.addView(
             logo,
             LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                0,
-                4f
-            )
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                dp(190)
+            ).apply {
+                bottomMargin = dp(16)
+            }
         )
 
         val title = TextView(this).apply {
             text = "TOPFM_NYH"
-            textSize = 28f
-            typeface = Typeface.DEFAULT_BOLD
-            setTextColor(gold)
+            textSize = 32f
+            setTextColor(Color.rgb(212, 175, 55))
             gravity = Gravity.CENTER
         }
 
         layout.addView(
             title,
             LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                0,
-                1f
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
             )
         )
 
         val slogan = TextView(this).apply {
             text = "CSAK TOP SLÁGEREK"
-            textSize = 15f
+            textSize = 16f
             setTextColor(Color.WHITE)
             gravity = Gravity.CENTER
         }
@@ -89,35 +85,35 @@ if (logoId != 0) {
         layout.addView(
             slogan,
             LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                0,
-                0.6f
-            )
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            ).apply {
+                topMargin = dp(8)
+            }
         )
 
         statusText = TextView(this).apply {
-            text = "KAPCSOLÓDÁS..."
-            textSize = 15f
-            typeface = Typeface.DEFAULT_BOLD
-            setTextColor(gold)
+            text = "Kapcsolódás..."
+            textSize = 16f
+            setTextColor(Color.rgb(212, 175, 55))
             gravity = Gravity.CENTER
         }
 
         layout.addView(
             statusText,
             LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                0,
-                0.8f
-            )
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            ).apply {
+                topMargin = dp(28)
+            }
         )
 
         playButton = Button(this).apply {
             text = "LEJÁTSZÁS"
             textSize = 18f
-            typeface = Typeface.DEFAULT_BOLD
             setTextColor(Color.BLACK)
-            setBackgroundColor(gold)
+            setBackgroundColor(Color.rgb(212, 175, 55))
             setOnClickListener {
                 toggleRadio()
             }
@@ -126,14 +122,23 @@ if (logoId != 0) {
         layout.addView(
             playButton,
             LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                56
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                dp(60)
             ).apply {
-                topMargin = 12
+                topMargin = dp(16)
+                bottomMargin = dp(24)
             }
         )
 
-        setContentView(layout)
+        scrollView.addView(
+            layout,
+            ScrollView.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+        )
+
+        setContentView(scrollView)
 
         connectToRadioService()
     }
@@ -153,7 +158,7 @@ if (logoId != 0) {
                 statusText.text = "ÉLŐ ADÁSRA KÉSZ"
                 updateButton()
             } catch (e: Exception) {
-                statusText.text = "KAPCSOLÓDÁSI HIBA"
+                statusText.text = "Kapcsolódási hiba"
             }
         }, { command -> runOnUiThread(command) })
     }
@@ -193,6 +198,10 @@ if (logoId != 0) {
             } else {
                 "LEJÁTSZÁS"
             }
+    }
+
+    private fun dp(value: Int): Int {
+        return (value * resources.displayMetrics.density).toInt()
     }
 
     override fun onDestroy() {
