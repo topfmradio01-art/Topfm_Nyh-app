@@ -5,13 +5,12 @@ import android.app.Activity
 import android.content.ComponentName
 import android.os.Bundle
 import android.graphics.Color
+import android.graphics.Typeface
 import android.view.Gravity
-import android.view.View
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.ImageView
-import android.graphics.Typeface
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.session.MediaController
@@ -37,55 +36,74 @@ class MainActivity : Activity() {
         val layout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER
-            setPadding(28, 28, 28, 28)
+            setPadding(24, 16, 24, 16)
             setBackgroundColor(Color.rgb(10, 10, 10))
         }
 
         val logo = ImageView(this).apply {
-            val logoId = resources.getIdentifier(
-                "fb_img_1767705001216_removebg_preview",
-                "drawable",
-                packageName
-            )
-            if (logoId != 0) {
-                setImageResource(logoId)
-                scaleType = ImageView.ScaleType.FIT_CENTER
-                visibility = View.VISIBLE
-            } else {
-                visibility = View.GONE
-            }
+            setImageResource(R.drawable.topfm_logo)
+            scaleType = ImageView.ScaleType.FIT_CENTER
+            adjustViewBounds = true
         }
 
         layout.addView(
             logo,
             LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
-                260
+                0,
+                4f
             )
         )
 
         val title = TextView(this).apply {
             text = "TOPFM_NYH"
-            textSize = 30f
+            textSize = 28f
             typeface = Typeface.DEFAULT_BOLD
             setTextColor(gold)
             gravity = Gravity.CENTER
         }
 
+        layout.addView(
+            title,
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                0,
+                1f
+            )
+        )
+
         val slogan = TextView(this).apply {
             text = "CSAK TOP SLÁGEREK"
-            textSize = 16f
+            textSize = 15f
             setTextColor(Color.WHITE)
             gravity = Gravity.CENTER
         }
 
+        layout.addView(
+            slogan,
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                0,
+                0.6f
+            )
+        )
+
         statusText = TextView(this).apply {
             text = "KAPCSOLÓDÁS..."
-            textSize = 16f
+            textSize = 15f
             typeface = Typeface.DEFAULT_BOLD
             setTextColor(gold)
             gravity = Gravity.CENTER
         }
+
+        layout.addView(
+            statusText,
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                0,
+                0.8f
+            )
+        )
 
         playButton = Button(this).apply {
             text = "LEJÁTSZÁS"
@@ -98,24 +116,13 @@ class MainActivity : Activity() {
             }
         }
 
-        layout.addView(title)
-        layout.addView(slogan)
-
-        val spacer = View(this)
-        layout.addView(
-            spacer,
-            LinearLayout.LayoutParams(1, 35)
-        )
-
-        layout.addView(statusText)
-
         layout.addView(
             playButton,
             LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
-                60
+                56
             ).apply {
-                topMargin = 20
+                topMargin = 12
             }
         )
 
