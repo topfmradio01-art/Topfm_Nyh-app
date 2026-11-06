@@ -45,10 +45,17 @@ class MainActivity : Activity() {
             setPadding(dp(24), dp(24), dp(24), dp(24))
             setBackgroundColor(Color.rgb(12, 12, 12))
         }
+        val logo = ImageView(this)
 
-    scaleType = ImageView.ScaleType.FIT_CENTER
-    adjustViewBounds = true
-        }
+        layout.addView(
+            logo,
+            LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                dp(190)
+            ).apply {
+                bottomMargin = dp(16)
+            }
+            }
 
         layout.addView(
             logo,
