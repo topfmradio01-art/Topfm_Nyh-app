@@ -152,7 +152,7 @@ class MainActivity : Activity() {
         }
 
         addCard(cards, "♫", "MŰSORAINK") {
-            openWebsite()
+    openLink("https://topfmnyiregyhaza.hu/musorok/")
         }
 
         addCard(cards, "♪", "MOST ADÁSBAN") {
