@@ -46,16 +46,7 @@ class MainActivity : Activity() {
             setBackgroundColor(Color.rgb(12, 12, 12))
         }
         val logo = ImageView(this)
-
-        layout.addView(
-            logo,
-            LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                dp(190)
-            ).apply {
-                bottomMargin = dp(16)
-            }
-            }
+                val logo = ImageView(this)
 
         layout.addView(
             logo,
@@ -66,7 +57,6 @@ class MainActivity : Activity() {
                 bottomMargin = dp(16)
             }
         )
-
         val title = TextView(this).apply {
             text = "TOPFM_NYH"
             textSize = 32f
