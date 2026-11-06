@@ -236,16 +236,16 @@ class MainActivity : Activity() {
             LinearLayout.LayoutParams(dp(48), dp(42))
         )
 
-        val text = TextView(this).apply {
-            text = label
-            textSize = 15f
-            setTextColor(Color.WHITE)
-            setTypeface(null, android.graphics.Typeface.BOLD)
-            gravity = Gravity.CENTER_VERTICAL
+        val cardLabelText = TextView(this).apply {
+    text = label
+    textSize = 15f
+    setTextColor(Color.WHITE)
+    setTypeface(null, android.graphics.Typeface.BOLD)
+    gravity = Gravity.CENTER_VERTICAL
         }
 
         card.addView(
-            text,
+    cardLabelText,
             LinearLayout.LayoutParams(
                 0,
                 ViewGroup.LayoutParams.MATCH_PARENT,
