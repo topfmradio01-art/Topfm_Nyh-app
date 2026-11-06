@@ -255,14 +255,14 @@ class MainActivity : Activity() {
             }
         )
 
-        val arrow = TextView(this).apply {
-            text = "›"
-            textSize = 28f
-            setTextColor(gold)
-            gravity = Gravity.CENTER
+        val arrowText = TextView(this).apply {
+    text = "›"
+    textSize = 28f
+    setTextColor(gold)
+    gravity = Gravity.CENTER
         }
 
-        card.addView(arrow)
+        card.addView(arrowText)
 
         parent.addView(
             card,
