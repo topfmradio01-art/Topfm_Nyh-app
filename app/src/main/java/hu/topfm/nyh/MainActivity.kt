@@ -350,7 +350,7 @@ class MainActivity : Activity() {
     private fun showNowPlaying() {
         val controller = mediaController
 
-        val title = controller?.mediaMetadata?.title?.toString()
+        val songTitle = controller?.mediaMetadata?.title?.toString()
             ?: "TOPFM_NYH"
 
         val artist = controller?.mediaMetadata?.artist?.toString()
@@ -358,7 +358,7 @@ class MainActivity : Activity() {
 
         AlertDialog.Builder(this)
             .setTitle("MOST ADÁSBAN")
-            .setMessage("$title\n$artist")
+            .setMessage("$songTitle\n$artist")
             .setPositiveButton("BEZÁRÁS", null)
             .show()
     }
