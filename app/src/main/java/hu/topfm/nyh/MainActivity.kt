@@ -1,22 +1,28 @@
+
 package hu.topfm.nyh
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.ComponentName
-import android.os.Bundle
+import android.content.Intent
+import android.graphics.BitmapFactory
 import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
+import android.net.Uri
+import android.os.Bundle
 import android.view.Gravity
+import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
-import android.graphics.BitmapFactory
-import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
-import androidx.media3.session.MediaController
-import androidx.media3.session.SessionToken
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
+import androidx.media3.common.Player
+import androidx.media3.session.MediaController
+import androidx.media3.session.SessionToken
 import com.google.common.util.concurrent.ListenableFuture
 
 class MainActivity : Activity() {
@@ -27,6 +33,10 @@ class MainActivity : Activity() {
     private lateinit var statusText: TextView
     private lateinit var playButton: Button
 
+    private val gold = Color.rgb(212, 175, 55)
+    private val dark = Color.rgb(12, 12, 12)
+    private val streamUrl = "https://s02.diazol.hu:10012/stream"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -35,35 +45,48 @@ class MainActivity : Activity() {
 
         val scrollView = ScrollView(this).apply {
             isFillViewport = true
-            setBackgroundColor(Color.rgb(12, 12, 12))
+            setBackgroundColor(dark)
             isVerticalScrollBarEnabled = false
         }
 
         val layout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER_HORIZONTAL
-            setPadding(dp(24), dp(24), dp(24), dp(24))
-            setBackgroundColor(Color.rgb(12, 12, 12))
+            setPadding(dp(22), dp(24), dp(22), dp(24))
+            setBackgroundColor(dark)
         }
-        val logo = ImageView(this)
-                val logo = ImageView(this)
+
+        // LOGÓ
+        val logo = ImageView(this).apply {
+            try {
+                assets.open("topfm_logo.png").use {
+                    setImageBitmap(BitmapFactory.decodeStream(it))
+                }
+            } catch (_: Exception) {
+                // A logó hiánya nem akadályozza az alkalmazás indulását.
+            }
+            scaleType = ImageView.ScaleType.FIT_CENTER
+            adjustViewBounds = true
+        }
 
         layout.addView(
             logo,
             LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
-                dp(190)
+                dp(170)
             ).apply {
-                bottomMargin = dp(16)
+                bottomMargin = dp(12)
             }
         )
+
+        // RÁDIÓ NEVE
         val title = TextView(this).apply {
             text = "TOPFM_NYH"
-            textSize = 32f
-            setTextColor(Color.rgb(212, 175, 55))
+            textSize = 30f
+            setTextColor(gold)
             gravity = Gravity.CENTER
+            setTypeface(null, android.graphics.Typeface.BOLD)
         }
-
         layout.addView(title)
 
         val slogan = TextView(this).apply {
@@ -79,14 +102,15 @@ class MainActivity : Activity() {
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
             ).apply {
-                topMargin = dp(8)
+                topMargin = dp(6)
             }
         )
 
+        // ÉLŐ ADÁS JELZÉS
         statusText = TextView(this).apply {
-            text = "Kapcsolódás..."
-            textSize = 16f
-            setTextColor(Color.rgb(212, 175, 55))
+            text = "● KAPCSOLÓDÁS..."
+            textSize = 15f
+            setTextColor(gold)
             gravity = Gravity.CENTER
         }
 
@@ -96,15 +120,17 @@ class MainActivity : Activity() {
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
             ).apply {
-                topMargin = dp(28)
+                topMargin = dp(24)
+                bottomMargin = dp(12)
             }
         )
 
+        // LEJÁTSZÁS GOMB
         playButton = Button(this).apply {
-            text = "LEJÁTSZÁS"
+            text = "▶  LEJÁTSZÁS"
             textSize = 18f
             setTextColor(Color.BLACK)
-            setBackgroundColor(Color.rgb(212, 175, 55))
+            setBackgroundColor(gold)
             setOnClickListener {
                 toggleRadio()
             }
@@ -114,24 +140,139 @@ class MainActivity : Activity() {
             playButton,
             LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
-                dp(60)
+                dp(58)
             ).apply {
-                topMargin = dp(16)
                 bottomMargin = dp(24)
             }
         )
 
+        // FUNKCIÓKÁRTYÁK
+        val cards = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+        }
+
+        addCard(cards, "♫", "MŰSORAINK") {
+            openWebsite()
+        }
+
+        addCard(cards, "♪", "MOST ADÁSBAN") {
+            showNowPlaying()
+        }
+
+        addCard(cards, "✉", "ÜZENETKÜLDÉS") {
+            openChat()
+        }
+
+        addCard(cards, "🌐", "WEBOLDAL") {
+            openWebsite()
+        }
+
+        layout.addView(
+            cards,
+            LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+        )
+
+        val footer = TextView(this).apply {
+            text = "TOPFM_NYH  •  CSak TOP SLÁGEREK"
+            textSize = 12f
+            setTextColor(gold)
+            gravity = Gravity.CENTER
+        }
+
+        layout.addView(
+            footer,
+            LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                dp(55)
+            ).apply {
+                topMargin = dp(12)
+            }
+        )
+
         scrollView.addView(
-    layout,
-    android.widget.FrameLayout.LayoutParams(
-        ViewGroup.LayoutParams.MATCH_PARENT,
-        ViewGroup.LayoutParams.WRAP_CONTENT
-    )
-)
+            layout,
+            android.widget.FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+        )
 
         setContentView(scrollView)
-
         connectToRadioService()
+    }
+
+    private fun addCard(
+        parent: LinearLayout,
+        symbol: String,
+        label: String,
+        action: () -> Unit
+    ) {
+        val card = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(dp(18), dp(12), dp(18), dp(12))
+            background = GradientDrawable().apply {
+                setColor(Color.rgb(25, 25, 25))
+                setStroke(dp(1), gold)
+                cornerRadius = dp(12).toFloat()
+            }
+            isClickable = true
+            isFocusable = true
+            setOnClickListener { action() }
+        }
+
+        val icon = TextView(this).apply {
+            text = symbol
+            textSize = 25f
+            setTextColor(gold)
+            gravity = Gravity.CENTER
+        }
+
+        card.addView(
+            icon,
+            LinearLayout.LayoutParams(dp(48), dp(42))
+        )
+
+        val text = TextView(this).apply {
+            text = label
+            textSize = 15f
+            setTextColor(Color.WHITE)
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            gravity = Gravity.CENTER_VERTICAL
+        }
+
+        card.addView(
+            text,
+            LinearLayout.LayoutParams(
+                0,
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                1f
+            ).apply {
+                leftMargin = dp(12)
+            }
+        )
+
+        val arrow = TextView(this).apply {
+            text = "›"
+            textSize = 28f
+            setTextColor(gold)
+            gravity = Gravity.CENTER
+        }
+
+        card.addView(arrow)
+
+        parent.addView(
+            card,
+            LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                dp(68)
+            ).apply {
+                bottomMargin = dp(12)
+            }
+        )
     }
 
     private fun connectToRadioService() {
@@ -140,26 +281,37 @@ class MainActivity : Activity() {
             ComponentName(this, RadioService::class.java)
         )
 
-        controllerFuture = MediaController.Builder(this, token)
-            .buildAsync()
+        controllerFuture = MediaController.Builder(this, token).buildAsync()
 
         controllerFuture?.addListener({
             try {
                 mediaController = controllerFuture?.get()
-                statusText.text = "ÉLŐ ADÁSRA KÉSZ"
+
+                mediaController?.addListener(object : Player.Listener {
+                    override fun onIsPlayingChanged(isPlaying: Boolean) {
+                        updateButton()
+                    }
+
+                    override fun onPlaybackStateChanged(playbackState: Int) {
+                        updateButton()
+                    }
+                })
+
                 updateButton()
-            } catch (e: Exception) {
-                statusText.text = "Kapcsolódási hiba"
+            } catch (_: Exception) {
+                statusText.text = "KAPCSOLÓDÁSI HIBA"
             }
         }, { command -> runOnUiThread(command) })
     }
 
     private fun toggleRadio() {
-        val controller = mediaController ?: return
+        val controller = mediaController ?: run {
+            statusText.text = "KÉRJÜK, VÁRJ..."
+            return
+        }
 
         if (controller.isPlaying || controller.playWhenReady) {
             controller.pause()
-            statusText.text = "LEÁLLÍTVA"
         } else {
             val metadata = MediaMetadata.Builder()
                 .setTitle("TOPFM_NYH")
@@ -167,28 +319,64 @@ class MainActivity : Activity() {
                 .build()
 
             val item = MediaItem.Builder()
-                .setUri("https://s02.diazol.hu:10012/stream")
+                .setUri(streamUrl)
                 .setMediaMetadata(metadata)
                 .build()
 
             controller.setMediaItem(item)
             controller.prepare()
             controller.play()
-            statusText.text = "KAPCSOLÓDÁS..."
         }
 
         updateButton()
     }
 
     private fun updateButton() {
-        val controller = mediaController ?: return
+        val playing = mediaController?.isPlaying == true
 
-        playButton.text =
-            if (controller.isPlaying || controller.playWhenReady) {
-                "SZÜNET"
-            } else {
-                "LEJÁTSZÁS"
-            }
+        playButton.text = if (playing) {
+            "Ⅱ  SZÜNET"
+        } else {
+            "▶  LEJÁTSZÁS"
+        }
+
+        statusText.text = if (playing) {
+            "● ÉLŐ ADÁS"
+        } else {
+            "● TOPFM_NYH ONLINE"
+        }
+    }
+
+    private fun showNowPlaying() {
+        val controller = mediaController
+
+        val title = controller?.mediaMetadata?.title?.toString()
+            ?: "TOPFM_NYH"
+
+        val artist = controller?.mediaMetadata?.artist?.toString()
+            ?: "Csak TOP slágerek"
+
+        AlertDialog.Builder(this)
+            .setTitle("MOST ADÁSBAN")
+            .setMessage("$title\n$artist")
+            .setPositiveButton("BEZÁRÁS", null)
+            .show()
+    }
+
+    private fun openWebsite() {
+        openLink("https://www.topfmnyiregyhaza.hu")
+    }
+
+    private fun openChat() {
+        openLink("https://topfmnyh.3cx.hu/#/office")
+    }
+
+    private fun openLink(url: String) {
+        try {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+        } catch (_: Exception) {
+            statusText.text = "A LINK NEM NYITHATÓ MEG"
+        }
     }
 
     private fun dp(value: Int): Int {
