@@ -24,6 +24,7 @@ import androidx.media3.common.Player
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import com.google.common.util.concurrent.ListenableFuture
+import java.util.Calendar
 
 class MainActivity : Activity() {
 
@@ -32,10 +33,70 @@ class MainActivity : Activity() {
 
     private lateinit var statusText: TextView
     private lateinit var playButton: Button
+    private lateinit var homeView: View
+
+    private var showingSchedule = false
 
     private val gold = Color.rgb(212, 175, 55)
     private val dark = Color.rgb(12, 12, 12)
     private val streamUrl = "https://s02.diazol.hu:10012/stream"
+
+    private data class ProgramItem(
+        val time: String,
+        val name: String
+    )
+
+    private val weeklySchedule = mapOf(
+        Calendar.MONDAY to listOf(
+            ProgramItem("00:00 – 20:00", "Csak Top Slágerek"),
+            ProgramItem("20:00 – 22:00", "Back To The Music"),
+            ProgramItem("22:00 – 24:00", "Csak Top Slágerek")
+        ),
+        Calendar.TUESDAY to listOf(
+            ProgramItem("00:00 – 19:00", "Csak Top Slágerek"),
+            ProgramItem("19:00 – 20:00", "Back In Time Classics"),
+            ProgramItem("20:00 – 22:00", "Top Night Out"),
+            ProgramItem("22:00 – 24:00", "Csak Top Slágerek")
+        ),
+        Calendar.WEDNESDAY to listOf(
+            ProgramItem("00:00 – 20:00", "Csak Top Slágerek"),
+            ProgramItem("20:00 – 22:00", "I Love 2000’s"),
+            ProgramItem("22:00 – 24:00", "Csak Top Slágerek")
+        ),
+        Calendar.THURSDAY to listOf(
+            ProgramItem("00:00 – 20:00", "Csak Top Slágerek"),
+            ProgramItem("20:00 – 22:00", "Spy Time"),
+            ProgramItem("22:00 – 24:00", "Csak Top Slágerek")
+        ),
+        Calendar.FRIDAY to listOf(
+            ProgramItem("00:00 – 19:00", "Csak Top Slágerek"),
+            ProgramItem("19:00 – 20:00", "Classic Night"),
+            ProgramItem("20:00 – 21:00", "Eurodance Party"),
+            ProgramItem("21:00 – 24:00", "Csak Top Slágerek")
+        ),
+        Calendar.SATURDAY to listOf(
+            ProgramItem("00:00 – 16:00", "Csak Top Slágerek"),
+            ProgramItem("16:00 – 18:00", "Saturday Party"),
+            ProgramItem("18:00 – 20:00", "Millenium Party Show"),
+            ProgramItem("20:00 – 21:00", "Top Night Pulse"),
+            ProgramItem("21:00 – 24:00", "Csak Top Slágerek")
+        ),
+        Calendar.SUNDAY to listOf(
+            ProgramItem("00:00 – 15:00", "Csak Top Slágerek"),
+            ProgramItem("15:00 – 16:00", "Begurulva"),
+            ProgramItem("16:00 – 24:00", "Csak Top Slágerek")
+        )
+    )
+
+    private val dayNames = mapOf(
+        Calendar.MONDAY to "HÉTFŐ",
+        Calendar.TUESDAY to "KEDD",
+        Calendar.WEDNESDAY to "SZERDA",
+        Calendar.THURSDAY to "CSÜTÖRTÖK",
+        Calendar.FRIDAY to "PÉNTEK",
+        Calendar.SATURDAY to "SZOMBAT",
+        Calendar.SUNDAY to "VASÁRNAP"
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,7 +124,7 @@ class MainActivity : Activity() {
                     setImageBitmap(BitmapFactory.decodeStream(it))
                 }
             } catch (_: Exception) {
-                // A logó hiánya nem akadályozza az alkalmazás indulását.
+                // A logó hiánya nem akadályozza az indulást.
             }
             scaleType = ImageView.ScaleType.FIT_CENTER
             adjustViewBounds = true
@@ -152,7 +213,7 @@ class MainActivity : Activity() {
         }
 
         addCard(cards, "♫", "MŰSORAINK") {
-    openLink("https://topfmnyiregyhaza.hu/musorok/")
+            showSchedule()
         }
 
         addCard(cards, "♪", "MOST ADÁSBAN") {
@@ -176,7 +237,7 @@ class MainActivity : Activity() {
         )
 
         val footer = TextView(this).apply {
-            text = "TOPFM_NYH  •  CSak TOP SLÁGEREK"
+            text = "TOPFM_NYH  •  CSAK TOP SLÁGEREK"
             textSize = 12f
             setTextColor(gold)
             gravity = Gravity.CENTER
@@ -200,7 +261,9 @@ class MainActivity : Activity() {
             )
         )
 
-        setContentView(scrollView)
+        homeView = scrollView
+        setContentView(homeView)
+
         connectToRadioService()
     }
 
@@ -231,21 +294,18 @@ class MainActivity : Activity() {
             gravity = Gravity.CENTER
         }
 
-        card.addView(
-            icon,
-            LinearLayout.LayoutParams(dp(48), dp(42))
-        )
+        card.addView(icon, LinearLayout.LayoutParams(dp(48), dp(42)))
 
         val cardLabelText = TextView(this).apply {
-    text = label
-    textSize = 15f
-    setTextColor(Color.WHITE)
-    setTypeface(null, android.graphics.Typeface.BOLD)
-    gravity = Gravity.CENTER_VERTICAL
+            text = label
+            textSize = 15f
+            setTextColor(Color.WHITE)
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            gravity = Gravity.CENTER_VERTICAL
         }
 
         card.addView(
-    cardLabelText,
+            cardLabelText,
             LinearLayout.LayoutParams(
                 0,
                 ViewGroup.LayoutParams.MATCH_PARENT,
@@ -256,10 +316,10 @@ class MainActivity : Activity() {
         )
 
         val arrowText = TextView(this).apply {
-    text = "›"
-    textSize = 28f
-    setTextColor(gold)
-    gravity = Gravity.CENTER
+            text = "›"
+            textSize = 28f
+            setTextColor(gold)
+            gravity = Gravity.CENTER
         }
 
         card.addView(arrowText)
@@ -273,6 +333,219 @@ class MainActivity : Activity() {
                 bottomMargin = dp(12)
             }
         )
+    }
+
+    // MŰSORREND KÉPERNYŐ
+    private fun showSchedule() {
+        showingSchedule = true
+
+        val today = Calendar.getInstance().get(Calendar.DAY_OF_WEEK)
+        renderSchedule(today, today)
+    }
+
+    private fun renderSchedule(selectedDay: Int, today: Int) {
+        val tomorrow = if (today == Calendar.SATURDAY) {
+            Calendar.SUNDAY
+        } else if (today == Calendar.SUNDAY) {
+            Calendar.MONDAY
+        } else {
+            today + 1
+        }
+
+        val scrollView = ScrollView(this).apply {
+            setBackgroundColor(dark)
+            isVerticalScrollBarEnabled = false
+        }
+
+        val layout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            gravity = Gravity.CENTER_HORIZONTAL
+            setPadding(dp(22), dp(24), dp(22), dp(30))
+            setBackgroundColor(dark)
+        }
+
+        val backButton = Button(this).apply {
+            text = "‹  VISSZA"
+            textSize = 15f
+            setTextColor(gold)
+            background = darkButtonBackground()
+            setOnClickListener {
+                showingSchedule = false
+                setContentView(homeView)
+            }
+        }
+
+        layout.addView(
+            backButton,
+            LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                dp(50)
+            ).apply {
+                bottomMargin = dp(22)
+            }
+        )
+
+        val heading = TextView(this).apply {
+            text = "MŰSORAINK"
+            textSize = 27f
+            setTextColor(gold)
+            gravity = Gravity.CENTER
+            setTypeface(null, android.graphics.Typeface.BOLD)
+        }
+
+        layout.addView(
+            heading,
+            LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            ).apply {
+                bottomMargin = dp(22)
+            }
+        )
+
+        val selector = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER
+        }
+
+        val todayButton = scheduleSelectorButton(
+            "MA",
+            selectedDay == today
+        ) {
+            renderSchedule(today, today)
+        }
+
+        val tomorrowButton = scheduleSelectorButton(
+            "HOLNAP",
+            selectedDay == tomorrow
+        ) {
+            renderSchedule(tomorrow, today)
+        }
+
+        selector.addView(
+            todayButton,
+            LinearLayout.LayoutParams(0, dp(50), 1f).apply {
+                rightMargin = dp(6)
+            }
+        )
+
+        selector.addView(
+            tomorrowButton,
+            LinearLayout.LayoutParams(0, dp(50), 1f).apply {
+                leftMargin = dp(6)
+            }
+        )
+
+        layout.addView(
+            selector,
+            LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            ).apply {
+                bottomMargin = dp(24)
+            }
+        )
+
+        val dayTitle = TextView(this).apply {
+            text = dayNames[selectedDay] ?: ""
+            textSize = 21f
+            setTextColor(gold)
+            gravity = Gravity.CENTER
+            setTypeface(null, android.graphics.Typeface.BOLD)
+        }
+
+        layout.addView(
+            dayTitle,
+            LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            ).apply {
+                bottomMargin = dp(18)
+            }
+        )
+
+        val programs = weeklySchedule[selectedDay] ?: emptyList()
+
+        for (program in programs) {
+            val row = LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+                setPadding(dp(16), dp(14), dp(16), dp(14))
+                background = GradientDrawable().apply {
+                    setColor(Color.rgb(25, 25, 25))
+                    setStroke(dp(1), gold)
+                    cornerRadius = dp(12).toFloat()
+                }
+            }
+
+            val timeText = TextView(this).apply {
+                text = program.time
+                textSize = 14f
+                setTextColor(gold)
+                setTypeface(null, android.graphics.Typeface.BOLD)
+            }
+
+            val nameText = TextView(this).apply {
+                text = program.name
+                textSize = 17f
+                setTextColor(Color.WHITE)
+                setTypeface(null, android.graphics.Typeface.BOLD)
+            }
+
+            row.addView(timeText)
+
+            row.addView(
+                nameText,
+                LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                ).apply {
+                    topMargin = dp(6)
+                }
+            )
+
+            layout.addView(
+                row,
+                LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                ).apply {
+                    bottomMargin = dp(12)
+                }
+            )
+        }
+
+        scrollView.addView(layout)
+        setContentView(scrollView)
+    }
+
+    private fun scheduleSelectorButton(
+        label: String,
+        selected: Boolean,
+        action: () -> Unit
+    ): Button {
+        return Button(this).apply {
+            text = label
+            textSize = 16f
+            setTypeface(null, android.graphics.Typeface.BOLD)
+            setTextColor(if (selected) Color.BLACK else gold)
+            background = if (selected) {
+                GradientDrawable().apply {
+                    setColor(gold)
+                    cornerRadius = dp(12).toFloat()
+                }
+            } else {
+                darkButtonBackground()
+            }
+            setOnClickListener { action() }
+        }
+    }
+
+    private fun darkButtonBackground(): GradientDrawable {
+        return GradientDrawable().apply {
+            setColor(Color.rgb(25, 25, 25))
+            setStroke(dp(1), gold)
+            cornerRadius = dp(12).toFloat()
+        }
     }
 
     private fun connectToRadioService() {
@@ -381,6 +654,16 @@ class MainActivity : Activity() {
 
     private fun dp(value: Int): Int {
         return (value * resources.displayMetrics.density).toInt()
+    }
+
+    @Deprecated("Deprecated in Android")
+    override fun onBackPressed() {
+        if (showingSchedule) {
+            showingSchedule = false
+            setContentView(homeView)
+        } else {
+            super.onBackPressed()
+        }
     }
 
     override fun onDestroy() {
