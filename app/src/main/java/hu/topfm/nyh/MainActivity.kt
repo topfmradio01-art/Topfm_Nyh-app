@@ -456,7 +456,7 @@ textContainer.addView(
         val layout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER_HORIZONTAL
-            setPadding(dp(22), dp(24), dp(22), dp(30))
+            setPadding(dp(22), dp(49), dp(22), dp(30))
             setBackgroundColor(dark)
         }
 
@@ -664,7 +664,7 @@ textContainer.addView(
         val layout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER_HORIZONTAL
-            setPadding(dp(22), dp(24), dp(22), dp(30))
+            setPadding(dp(22), dp(49), dp(22), dp(30))
             setBackgroundColor(dark)
         }
 
