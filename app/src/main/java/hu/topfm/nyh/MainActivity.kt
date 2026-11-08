@@ -1,4 +1,3 @@
-
 package hu.topfm.nyh
 
 import android.app.Activity
@@ -36,6 +35,7 @@ class MainActivity : Activity() {
     private lateinit var homeView: View
 
     private var showingSchedule = false
+    private var showingContact = false
 
     private val gold = Color.rgb(212, 175, 55)
     private val dark = Color.rgb(12, 12, 12)
@@ -221,7 +221,7 @@ class MainActivity : Activity() {
         }
 
         addCard(cards, "✉", "KAPCSOLAT") {
-    showContact()
+            showContact()
         }
 
         addCard(cards, "🌐", "WEBOLDAL") {
@@ -266,8 +266,7 @@ class MainActivity : Activity() {
 
         connectToRadioService()
     }
-
-    private fun addCard(
+        private fun addCard(
         parent: LinearLayout,
         symbol: String,
         label: String,
@@ -424,14 +423,22 @@ class MainActivity : Activity() {
 
         selector.addView(
             todayButton,
-            LinearLayout.LayoutParams(0, dp(50), 1f).apply {
+            LinearLayout.LayoutParams(
+                0,
+                dp(48),
+                1f
+            ).apply {
                 rightMargin = dp(6)
             }
         )
 
         selector.addView(
             tomorrowButton,
-            LinearLayout.LayoutParams(0, dp(50), 1f).apply {
+            LinearLayout.LayoutParams(
+                0,
+                dp(48),
+                1f
+            ).apply {
                 leftMargin = dp(6)
             }
         )
@@ -548,198 +555,203 @@ class MainActivity : Activity() {
         }
     }
 
-    
-private var showingContact = false
+    // KAPCSOLAT KÉPERNYŐ
+    private fun showContact() {
+        showingContact = true
 
-private fun showContact() {
-    showingContact = true
-
-    val scroll = ScrollView(this).apply {
-        setBackgroundColor(dark)
-        isVerticalScrollBarEnabled = false
-    }
-
-    val layout = LinearLayout(this).apply {
-        orientation = LinearLayout.VERTICAL
-        gravity = Gravity.CENTER_HORIZONTAL
-        setPadding(dp(22), dp(24), dp(22), dp(30))
-        setBackgroundColor(dark)
-    }
-
-    val back = Button(this).apply {
-        text = "‹  VISSZA"
-        setTextColor(gold)
-        background = darkButtonBackground()
-        setOnClickListener {
-            showingContact = false
-            setContentView(homeView)
+        val scroll = ScrollView(this).apply {
+            setBackgroundColor(dark)
+            isVerticalScrollBarEnabled = false
         }
-    }
 
-    layout.addView(
-        back,
-        LinearLayout.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            dp(50)
-        ).apply {
-            bottomMargin = dp(24)
+        val layout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            gravity = Gravity.CENTER_HORIZONTAL
+            setPadding(dp(22), dp(24), dp(22), dp(30))
+            setBackgroundColor(dark)
         }
-    )
 
-    val heading = TextView(this).apply {
-        text = "KAPCSOLAT"
-        textSize = 28f
-        setTextColor(gold)
-        gravity = Gravity.CENTER
-        setTypeface(null, android.graphics.Typeface.BOLD)
-    }
-
-    layout.addView(heading)
-
-    val subtitle = TextView(this).apply {
-        text = "Lépj kapcsolatba velünk!"
-        textSize = 16f
-        setTextColor(Color.WHITE)
-        gravity = Gravity.CENTER
-    }
-
-    layout.addView(
-        subtitle,
-        LinearLayout.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
-        ).apply {
-            topMargin = dp(10)
-            bottomMargin = dp(28)
-        }
-    )
-
-    addContactCard(layout, "✉", "E-MAIL KÜLDÉSE",
-        "info@topfmnyiregyhaza.hu") {
-        openLink("mailto:info@topfmnyiregyhaza.hu")
-    }
-
-    addContactCard(layout, "🌐", "WEBOLDAL",
-        "www.topfmnyiregyhaza.hu") {
-        openLink("https://www.topfmnyiregyhaza.hu")
-    }
-
-    addContactCard(layout, "f", "FACEBOOK",
-        "Topfm_NYH Facebook oldal") {
-        openLink("https://www.facebook.com/share/1GJY6YrXL9/")
-    }
-
-    addContactCard(layout, "✉", "SMS / VIBER",
-        "06-70/585-16-52", true) {
-        showMessageChoice()
-    }
-
-    scroll.addView(layout)
-    setContentView(scroll)
-}
-
-private fun addContactCard(
-    parent: LinearLayout,
-    symbol: String,
-    title: String,
-    detail: String,
-    whiteDetail: Boolean = false,
-    action: () -> Unit
-) {
-    val card = LinearLayout(this).apply {
-        orientation = LinearLayout.HORIZONTAL
-        gravity = Gravity.CENTER_VERTICAL
-        setPadding(dp(16), dp(16), dp(16), dp(16))
-        background = GradientDrawable().apply {
-            setColor(Color.rgb(25, 25, 25))
-            setStroke(dp(1), gold)
-            cornerRadius = dp(12).toFloat()
-        }
-        isClickable = true
-        isFocusable = true
-        setOnClickListener { action() }
-    }
-
-    val icon = TextView(this).apply {
-        text = symbol
-        textSize = 25f
-        setTextColor(gold)
-        gravity = Gravity.CENTER
-    }
-
-    card.addView(icon, LinearLayout.LayoutParams(dp(45), dp(48)))
-
-    val texts = LinearLayout(this).apply {
-        orientation = LinearLayout.VERTICAL
-        setPadding(dp(12), 0, 0, 0)
-    }
-
-    val titleText = TextView(this).apply {
-        text = title
-        textSize = 14f
-        setTextColor(gold)
-        setTypeface(null, android.graphics.Typeface.BOLD)
-    }
-
-    val detailText = TextView(this).apply {
-        text = detail
-        textSize = 14f
-        setTextColor(if (whiteDetail) Color.WHITE else Color.LTGRAY)
-    }
-
-    texts.addView(titleText)
-    texts.addView(
-        detailText,
-        LinearLayout.LayoutParams(
-            ViewGroup.LayoutParams.WRAP_CONTENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
-        ).apply {
-            topMargin = dp(5)
-        }
-    )
-
-    card.addView(
-        texts,
-        LinearLayout.LayoutParams(
-            0,
-            ViewGroup.LayoutParams.WRAP_CONTENT,
-            1f
-        )
-    )
-
-    val arrow = TextView(this).apply {
-        text = "›"
-        textSize = 28f
-        setTextColor(gold)
-    }
-
-    card.addView(arrow)
-
-    parent.addView(
-        card,
-        LinearLayout.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            dp(82)
-        ).apply {
-            bottomMargin = dp(14)
-        }
-    )
-}
-
-private fun showMessageChoice() {
-    AlertDialog.Builder(this)
-        .setTitle("Kapcsolatfelvétel")
-        .setItems(arrayOf("SMS küldése", "Viber megnyitása")) { _, which ->
-            if (which == 0) {
-                openLink("smsto:06705851652")
-            } else {
-                openLink("viber://chat?number=%2B36705851652")
+        val back = Button(this).apply {
+            text = "‹  VISSZA"
+            setTextColor(gold)
+            background = darkButtonBackground()
+            setOnClickListener {
+                showingContact = false
+                setContentView(homeView)
             }
         }
-        .setNegativeButton("MÉGSE", null)
-        .show()
-}
 
+        layout.addView(
+            back,
+            LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                dp(50)
+            ).apply {
+                bottomMargin = dp(24)
+            }
+        )
+
+        val heading = TextView(this).apply {
+            text = "KAPCSOLAT"
+            textSize = 28f
+            setTextColor(gold)
+            gravity = Gravity.CENTER
+            setTypeface(null, android.graphics.Typeface.BOLD)
+        }
+
+        layout.addView(heading)
+
+        val subtitle = TextView(this).apply {
+            text = "Lépj kapcsolatba velünk!"
+            textSize = 16f
+            setTextColor(Color.WHITE)
+            gravity = Gravity.CENTER
+        }
+
+        layout.addView(
+            subtitle,
+            LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            ).apply {
+                topMargin = dp(10)
+                bottomMargin = dp(28)
+            }
+        )
+
+        addContactCard(
+            layout, "✉", "E-MAIL KÜLDÉSE",
+            "info@topfmnyiregyhaza.hu"
+        ) {
+            openLink("mailto:info@topfmnyiregyhaza.hu")
+        }
+
+        addContactCard(
+            layout, "🌐", "WEBOLDAL",
+            "www.topfmnyiregyhaza.hu"
+        ) {
+            openLink("https://www.topfmnyiregyhaza.hu")
+        }
+
+        addContactCard(
+            layout, "f", "FACEBOOK",
+            "Topfm_NYH Facebook oldal"
+        ) {
+            openLink("https://www.facebook.com/share/1GJY6YrXL9/")
+        }
+
+        addContactCard(
+            layout, "✉", "SMS / VIBER",
+            "06-70/585-16-52", true
+        ) {
+            showMessageChoice()
+        }
+
+        scroll.addView(layout)
+        setContentView(scroll)
+    }
+
+    private fun addContactCard(
+        parent: LinearLayout,
+        symbol: String,
+        title: String,
+        detail: String,
+        whiteDetail: Boolean = false,
+        action: () -> Unit
+    ) {
+        val card = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(dp(16), dp(16), dp(16), dp(16))
+            background = GradientDrawable().apply {
+                setColor(Color.rgb(25, 25, 25))
+                setStroke(dp(1), gold)
+                cornerRadius = dp(12).toFloat()
+            }
+            isClickable = true
+            isFocusable = true
+            setOnClickListener { action() }
+        }
+
+        val icon = TextView(this).apply {
+            text = symbol
+            textSize = 25f
+            setTextColor(gold)
+            gravity = Gravity.CENTER
+        }
+
+        card.addView(icon, LinearLayout.LayoutParams(dp(45), dp(48)))
+
+        val texts = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(12), 0, 0, 0)
+        }
+
+        val titleText = TextView(this).apply {
+            text = title
+            textSize = 14f
+            setTextColor(gold)
+            setTypeface(null, android.graphics.Typeface.BOLD)
+        }
+
+        val detailText = TextView(this).apply {
+            text = detail
+            textSize = 14f
+            setTextColor(if (whiteDetail) Color.WHITE else Color.LTGRAY)
+        }
+
+        texts.addView(titleText)
+        texts.addView(
+            detailText,
+            LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            ).apply {
+                topMargin = dp(5)
+            }
+        )
+
+        card.addView(
+            texts,
+            LinearLayout.LayoutParams(
+                0,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                1f
+            )
+        )
+
+        val arrow = TextView(this).apply {
+            text = "›"
+            textSize = 28f
+            setTextColor(gold)
+        }
+
+        card.addView(arrow)
+
+        parent.addView(
+            card,
+            LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                dp(82)
+            ).apply {
+                bottomMargin = dp(14)
+            }
+        )
+    }    private fun showMessageChoice() {
+        AlertDialog.Builder(this)
+            .setTitle("Kapcsolatfelvétel")
+            .setItems(arrayOf("SMS küldése", "Viber megnyitása")) { _, which ->
+                if (which == 0) {
+                    openLink("smsto:06705851652")
+                } else {
+                    openLink("viber://chat?number=%2B36705851652")
+                }
+            }
+            .setNegativeButton("MÉGSE", null)
+            .show()
+    }
+
+    private fun connectToRadioService() {
         val token = SessionToken(
             this,
             ComponentName(this, RadioService::class.java)
@@ -847,18 +859,16 @@ private fun showMessageChoice() {
         return (value * resources.displayMetrics.density).toInt()
     }
 
-    
-@Deprecated("Deprecated in Android")
-override fun onBackPressed() {
-    if (showingSchedule || showingContact) {
-        showingSchedule = false
-        showingContact = false
-        setContentView(homeView)
-    } else {
-        super.onBackPressed()
+    @Deprecated("Deprecated in Android")
+    override fun onBackPressed() {
+        if (showingSchedule || showingContact) {
+            showingSchedule = false
+            showingContact = false
+            setContentView(homeView)
+        } else {
+            super.onBackPressed()
+        }
     }
-}
-
 
     override fun onDestroy() {
         controllerFuture?.let {
