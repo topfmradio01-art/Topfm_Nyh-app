@@ -265,9 +265,75 @@ class MainActivity : Activity() {
         setContentView(homeView)
 
         connectToRadioService()
+    }private fun addCard(
+    parent: LinearLayout,
+    symbol: String,
+    label: String,
+    action: () -> Unit
+) {
+    val card = LinearLayout(this).apply {
+        orientation = LinearLayout.HORIZONTAL
+        gravity = Gravity.CENTER_VERTICAL
+        setPadding(dp(18), dp(12), dp(18), dp(12))
+        background = GradientDrawable().apply {
+            setColor(Color.rgb(25, 25, 25))
+            setStroke(dp(1), gold)
+            cornerRadius = dp(12).toFloat()
+        }
+        isClickable = true
+        isFocusable = true
+        setOnClickListener { action() }
     }
-        private fun addCard(
-        private fun addContactCard(
+
+    val icon = TextView(this).apply {
+        text = symbol
+        textSize = 25f
+        setTextColor(gold)
+        gravity = Gravity.CENTER
+    }
+
+    card.addView(icon, LinearLayout.LayoutParams(dp(48), dp(42)))
+
+    val cardLabelText = TextView(this).apply {
+        text = label
+        textSize = 15f
+        setTextColor(Color.WHITE)
+        setTypeface(null, android.graphics.Typeface.BOLD)
+        gravity = Gravity.CENTER_VERTICAL
+    }
+
+    card.addView(
+        cardLabelText,
+        LinearLayout.LayoutParams(
+            0,
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            1f
+        ).apply {
+            leftMargin = dp(12)
+        }
+    )
+
+    val arrowText = TextView(this).apply {
+        text = "›"
+        textSize = 28f
+        setTextColor(gold)
+        gravity = Gravity.CENTER
+    }
+
+    card.addView(arrowText)
+
+    parent.addView(
+        card,
+        LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            dp(68)
+        ).apply {
+            bottomMargin = dp(12)
+        }
+    )
+}
+
+private fun addContactCard(
     parent: LinearLayout,
     symbol: String,
     label: String,
@@ -350,7 +416,7 @@ class MainActivity : Activity() {
             bottomMargin = dp(12)
         }
     )
-        }
+}
 
     // MŰSORREND KÉPERNYŐ
     private fun showSchedule() {
