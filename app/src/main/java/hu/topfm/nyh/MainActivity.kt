@@ -825,15 +825,17 @@ textContainer.addView(
 
         card.addView(arrow)
 
-        parent.addView(
-            card,
-            LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                dp(82)
-            ).apply {
-                bottomMargin = dp(14)
-            }
-        )
+card.minimumHeight = dp(90)
+
+parent.addView(
+    card,
+    LinearLayout.LayoutParams(
+        ViewGroup.LayoutParams.MATCH_PARENT,
+        ViewGroup.LayoutParams.WRAP_CONTENT
+    ).apply {
+        bottomMargin = dp(14)
+    }
+)
     }    private fun showMessageChoice() {
         AlertDialog.Builder(this)
             .setTitle("Kapcsolatfelvétel")
