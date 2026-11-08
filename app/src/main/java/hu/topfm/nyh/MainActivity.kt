@@ -384,8 +384,21 @@ private fun addContactCard(
         includeFontPadding = true
     }
 
-    textContainer.addView(cardLabelText)
-    textContainer.addView(detailText)
+    textContainer.addView(
+    cardLabelText,
+    LinearLayout.LayoutParams(
+        ViewGroup.LayoutParams.WRAP_CONTENT,
+        ViewGroup.LayoutParams.WRAP_CONTENT
+    )
+)
+
+textContainer.addView(
+    detailText,
+    LinearLayout.LayoutParams(
+        ViewGroup.LayoutParams.WRAP_CONTENT,
+        ViewGroup.LayoutParams.WRAP_CONTENT
+    )
+)
 
     card.addView(
         textContainer,
