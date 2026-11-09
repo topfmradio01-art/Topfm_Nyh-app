@@ -334,16 +334,16 @@ setPadding(0, dp(2), 0, 0)
     LinearLayout.LayoutParams(
         ViewGroup.LayoutParams.MATCH_PARENT,
         dp(72)
-    }
+    )
 )
 
-    homeView = root
-    setContentView(homeView)
+homeView = root
+setContentView(homeView)
 
-    connectToRadioService()
-}
+connectToRadioService()
+        }
 
-private fun addCard(
+        private fun addCard(
     parent: LinearLayout,
     symbol: String,
     label: String,
