@@ -366,7 +366,8 @@ override fun onCreate(savedInstanceState: Bundle?) {
 
     connectToRadioService()
 }
-    }private fun addCard(
+
+    private fun addCard(
     parent: LinearLayout,
     symbol: String,
     label: String,
