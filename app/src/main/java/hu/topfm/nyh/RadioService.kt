@@ -1,7 +1,6 @@
 package hu.topfm.nyh
 
 import androidx.media3.common.MediaItem
-import androidx.media3.common.MediaMetadata
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
@@ -18,14 +17,9 @@ class RadioService : MediaSessionService() {
         player = exoPlayer
 
         val metadata = MediaMetadata.Builder()
-            .setTitle("TOPFM_NYH")
-            .setArtist("Csak TOP slágerek")
-            .build()
-
-        val mediaItem = MediaItem.Builder()
-            .setUri("https://s02.diazol.hu:10012/stream")
-            .setMediaMetadata(metadata)
-            .build()
+val mediaItem = MediaItem.Builder()
+    .setUri("https://s02.diazol.hu:10012/stream")
+    .build()
 
         exoPlayer.setMediaItem(mediaItem)
 
