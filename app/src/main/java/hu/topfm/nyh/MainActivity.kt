@@ -339,8 +339,6 @@ setPadding(0, dp(2), 0, 0)
 
 private fun addCard(
     parent: LinearLayout,
-  
-    parent: LinearLayout,
     symbol: String,
     label: String,
     action: () -> Unit
