@@ -199,7 +199,7 @@ override fun onCreate(savedInstanceState: Bundle?) {
     // LEJÁTSZÁS GOMB
     playButton = Button(this).apply {
         text = "▶"
-        textSize = 34f
+        textSize = 42f
         setTextColor(Color.BLACK)
         background = GradientDrawable().apply {
             setColor(gold)
@@ -311,7 +311,7 @@ override fun onCreate(savedInstanceState: Bundle?) {
         orientation = LinearLayout.HORIZONTAL
         gravity = Gravity.CENTER
         setBackgroundColor(Color.rgb(20, 20, 20))
-        setPadding(dp(4), dp(5), dp(4), dp(5))
+        setPadding(dp(4), dp(1), dp(4), dp(1))
     }
 
     fun addNavigationButton(label: String, action: () -> Unit) {
@@ -328,7 +328,7 @@ override fun onCreate(savedInstanceState: Bundle?) {
             button,
             LinearLayout.LayoutParams(
                 0,
-                dp(58),
+                dp(54),
                 1f
             ).apply {
                 leftMargin = dp(2)
@@ -357,7 +357,7 @@ override fun onCreate(savedInstanceState: Bundle?) {
         navigation,
         LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
-            dp(68)
+            dp(62)
         )
     )
 
@@ -1009,19 +1009,15 @@ parent.addView(
     }
 
     private fun updateButton() {
-        val playing = mediaController?.isPlaying == true
+    val playing = mediaController?.isPlaying == true
 
-        playButton.text = if (playing) {
-            "Ⅱ  SZÜNET"
-        } else {
-            "▶  LEJÁTSZÁS"
-        }
+    playButton.text = if (playing) "Ⅱ" else "▶"
 
-        statusText.text = if (playing) {
-            "● ÉLŐ ADÁS"
-        } else {
-            "● TOPFM_NYH ONLINE"
-        }
+    statusText.text = if (playing) {
+        "● ÉLŐ ADÁS"
+    } else {
+        "● TOPFM_NYH ONLINE"
+    }
     }
 
     private fun showNowPlaying() {
