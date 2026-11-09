@@ -180,6 +180,8 @@ playButton = Button(this).apply {
     text = "▶"
     textSize = 42f
     setTextColor(gold)
+    gravity = Gravity.CENTER
+includeFontPadding = false
     background = GradientDrawable().apply {
         setColor(Color.TRANSPARENT)
         shape = GradientDrawable.OVAL
