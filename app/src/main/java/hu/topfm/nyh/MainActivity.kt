@@ -141,42 +141,15 @@ override fun onCreate(savedInstanceState: Bundle?) {
     }
 
     content.addView(
-        logo,
-        LinearLayout.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            dp(175)
-        ).apply {
-            bottomMargin = dp(12)
-        }
-    )
-
-    // RÁDIÓ NEVE
-    val title = TextView(this).apply {
-        text = "TOPFM_NYH"
-        textSize = 30f
-        setTextColor(gold)
-        gravity = Gravity.CENTER
-        setTypeface(null, android.graphics.Typeface.BOLD)
+    logo,
+    LinearLayout.LayoutParams(
+        ViewGroup.LayoutParams.MATCH_PARENT,
+        dp(230)
+    ).apply {
+        topMargin = dp(30)
+        bottomMargin = dp(12)
     }
-    content.addView(title)
-
-    // SZLOGEN
-    val slogan = TextView(this).apply {
-        text = "CSAK TOP SLÁGEREK"
-        textSize = 16f
-        setTextColor(Color.WHITE)
-        gravity = Gravity.CENTER
-    }
-
-    content.addView(
-        slogan,
-        LinearLayout.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
-        ).apply {
-            topMargin = dp(7)
-        }
-    )
+)
 
     // ÉLŐ ADÁS
     statusText = TextView(this).apply {
@@ -305,7 +278,6 @@ override fun onCreate(savedInstanceState: Bundle?) {
             1f
         )
     )
-
     // ALSÓ NAVIGÁCIÓ
     val navigation = LinearLayout(this).apply {
         orientation = LinearLayout.HORIZONTAL
@@ -321,16 +293,14 @@ override fun onCreate(savedInstanceState: Bundle?) {
             setTextColor(gold)
             background = darkButtonBackground()
             isAllCaps = false
+            gravity = Gravity.TOP or Gravity.CENTER_HORIZONTAL
+setPadding(0, dp(2), 0, 0)
             setOnClickListener { action() }
         }
 
         navigation.addView(
             button,
-            LinearLayout.LayoutParams(
-                0,
-                dp(54),
-                1f
-            ).apply {
+            LinearLayout.LayoutParams(0, dp(54), 1f).apply {
                 leftMargin = dp(2)
                 rightMargin = dp(2)
             }
@@ -367,7 +337,9 @@ override fun onCreate(savedInstanceState: Bundle?) {
     connectToRadioService()
 }
 
-    private fun addCard(
+private fun addCard(
+    parent: LinearLayout,
+  
     parent: LinearLayout,
     symbol: String,
     label: String,
