@@ -16,6 +16,7 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ScrollView
+import android.widget.SeekBar
 import android.widget.TextView
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
@@ -216,58 +217,272 @@ class MainActivity : Activity() {
         }
 
         addCard(cards, "♫", "MŰSORAINK") {
-            showSchedule()
-        }
 
-        addCard(cards, "♪", "MOST ADÁSBAN") {
-            showNowPlaying()
-        }
+override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
 
-        addCard(cards, "✉", "KAPCSOLAT") {
-            showContact()
-        }
+    window.statusBarColor = Color.BLACK
+    window.navigationBarColor = Color.BLACK
 
-        addCard(cards, "🌐", "WEBOLDAL") {
-            openWebsite()
-        }
+    val audioManager = getSystemService(
+        android.content.Context.AUDIO_SERVICE
+    ) as android.media.AudioManager
 
-        layout.addView(
-            cards,
-            LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
+    val root = LinearLayout(this).apply {
+        orientation = LinearLayout.VERTICAL
+        setBackgroundColor(dark)
+    }
+
+    val scroll = ScrollView(this).apply {
+        isFillViewport = true
+        isVerticalScrollBarEnabled = false
+    }
+
+    val content = LinearLayout(this).apply {
+        orientation = LinearLayout.VERTICAL
+        gravity = Gravity.CENTER_HORIZONTAL
+        setPadding(dp(22), dp(28), dp(22), dp(20))
+        setBackgroundColor(dark)
+    }
+
+    // LOGÓ
+    val logo = ImageView(this).apply {
+        try {
+            assets.open("topfm_logo.png").use {
+                setImageBitmap(BitmapFactory.decodeStream(it))
+            }
+        } catch (_: Exception) {
+        }
+        scaleType = ImageView.ScaleType.FIT_CENTER
+        adjustViewBounds = true
+    }
+
+    content.addView(
+        logo,
+        LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            dp(175)
+        ).apply {
+            bottomMargin = dp(12)
+        }
+    )
+
+    // RÁDIÓ NEVE
+    val title = TextView(this).apply {
+        text = "TOPFM_NYH"
+        textSize = 30f
+        setTextColor(gold)
+        gravity = Gravity.CENTER
+        setTypeface(null, android.graphics.Typeface.BOLD)
+    }
+    content.addView(title)
+
+    // SZLOGEN
+    val slogan = TextView(this).apply {
+        text = "CSAK TOP SLÁGEREK"
+        textSize = 16f
+        setTextColor(Color.WHITE)
+        gravity = Gravity.CENTER
+    }
+
+    content.addView(
+        slogan,
+        LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        ).apply {
+            topMargin = dp(7)
+        }
+    )
+
+    // ÉLŐ ADÁS
+    statusText = TextView(this).apply {
+        text = "● KAPCSOLÓDÁS..."
+        textSize = 15f
+        setTextColor(gold)
+        gravity = Gravity.CENTER
+    }
+
+    content.addView(
+        statusText,
+        LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            dp(55)
+        ).apply {
+            topMargin = dp(20)
+        }
+    )
+
+    // LEJÁTSZÁS GOMB
+    playButton = Button(this).apply {
+        text = "▶"
+        textSize = 34f
+        setTextColor(Color.BLACK)
+        background = GradientDrawable().apply {
+            setColor(gold)
+            shape = GradientDrawable.OVAL
+            setStroke(dp(3), Color.rgb(245, 215, 120))
+        }
+        setOnClickListener {
+            toggleRadio()
+        }
+    }
+
+    content.addView(
+        playButton,
+        LinearLayout.LayoutParams(dp(104), dp(104)).apply {
+            topMargin = dp(12)
+            bottomMargin = dp(28)
+        }
+    )
+
+    // HANGERŐ FELIRAT
+    val volumeLabel = TextView(this).apply {
+        text = "HANGERŐ"
+        textSize = 14f
+        setTextColor(gold)
+        gravity = Gravity.CENTER
+        setTypeface(null, android.graphics.Typeface.BOLD)
+    }
+
+    content.addView(volumeLabel)
+
+    // HANGERŐCSÚSZKA
+    val maxVolume = audioManager.getStreamMaxVolume(
+        android.media.AudioManager.STREAM_MUSIC
+    )
+
+    val volumeSlider = SeekBar(this).apply {
+        max = maxVolume
+        progress = audioManager.getStreamVolume(
+            android.media.AudioManager.STREAM_MUSIC
         )
 
-        val footer = TextView(this).apply {
-            text = "TOPFM_NYH  •  CSAK TOP SLÁGEREK"
-            textSize = 12f
-            setTextColor(gold)
-            gravity = Gravity.CENTER
-        }
+        progressTintList = android.content.res.ColorStateList.valueOf(gold)
+        thumbTintList = android.content.res.ColorStateList.valueOf(gold)
 
-        layout.addView(
-            footer,
-            LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                dp(55)
-            ).apply {
-                topMargin = dp(12)
+        setOnSeekBarChangeListener(
+            object : SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(
+                    seekBar: SeekBar?,
+                    progress: Int,
+                    fromUser: Boolean
+                ) {
+                    if (fromUser) {
+                        audioManager.setStreamVolume(
+                            android.media.AudioManager.STREAM_MUSIC,
+                            progress,
+                            0
+                        )
+                    }
+                }
+
+                override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+                override fun onStopTrackingTouch(seekBar: SeekBar?) {}
             }
         )
+    }
 
-        scrollView.addView(
-            layout,
-            android.widget.FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
+    content.addView(
+        volumeSlider,
+        LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            dp(55)
         )
+    )
 
-        homeView = scrollView
+    // MOST ADÁSBAN
+    val nowPlaying = Button(this).apply {
+        text = "♫  MOST ADÁSBAN"
+        textSize = 14f
+        setTextColor(gold)
+        background = darkButtonBackground()
+        setOnClickListener {
+            showNowPlaying()
+        }
+    }
+
+    content.addView(
+        nowPlaying,
+        LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            dp(50)
+        ).apply {
+            topMargin = dp(16)
+        }
+    )
+
+    scroll.addView(content)
+
+    root.addView(
+        scroll,
+        LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            0,
+            1f
+        )
+    )
+
+    // ALSÓ NAVIGÁCIÓ
+    val navigation = LinearLayout(this).apply {
+        orientation = LinearLayout.HORIZONTAL
+        gravity = Gravity.CENTER
+        setBackgroundColor(Color.rgb(20, 20, 20))
+        setPadding(dp(4), dp(5), dp(4), dp(5))
+    }
+
+    fun addNavigationButton(label: String, action: () -> Unit) {
+        val button = Button(this).apply {
+            text = label
+            textSize = 11f
+            setTextColor(gold)
+            background = darkButtonBackground()
+            isAllCaps = false
+            setOnClickListener { action() }
+        }
+
+        navigation.addView(
+            button,
+            LinearLayout.LayoutParams(
+                0,
+                dp(58),
+                1f
+            ).apply {
+                leftMargin = dp(2)
+                rightMargin = dp(2)
+            }
+        )
+    }
+
+    addNavigationButton("⌂\nFŐOLDAL") {
         setContentView(homeView)
+    }
 
-        connectToRadioService()
+    addNavigationButton("♫\nMŰSOROK") {
+        showSchedule()
+    }
+
+    addNavigationButton("✉\nKAPCSOLAT") {
+        showContact()
+    }
+
+    addNavigationButton("🌐\nWEBOLDAL") {
+        openWebsite()
+    }
+
+    root.addView(
+        navigation,
+        LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            dp(68)
+        )
+    )
+
+    homeView = root
+    setContentView(homeView)
+
+    connectToRadioService()
+}
     }private fun addCard(
     parent: LinearLayout,
     symbol: String,
