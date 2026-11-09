@@ -182,8 +182,8 @@ playButton = Button(this).apply {
     setTextColor(gold)
     gravity = Gravity.CENTER
 includeFontPadding = false
-translationX = dp(1).toFloat()
-translationY = dp(-1).toFloat()
+translationX = dp(3).toFloat()
+translationY = dp(-3).toFloat()
     background = GradientDrawable().apply {
         setColor(Color.TRANSPARENT)
         shape = GradientDrawable.OVAL
