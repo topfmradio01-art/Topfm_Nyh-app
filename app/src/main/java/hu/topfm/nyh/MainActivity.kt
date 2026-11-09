@@ -176,27 +176,27 @@ androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(root) { view, windo
     )
 
     // LEJÁTSZÁS GOMB
-    playButton = Button(this).apply {
-        text = "▶"
-        textSize = 42f
-        setTextColor(Color.BLACK)
-        background = GradientDrawable().apply {
-            setColor(gold)
-            shape = GradientDrawable.OVAL
-            setStroke(dp(3), Color.rgb(245, 215, 120))
-        }
-        setOnClickListener {
-            toggleRadio()
-        }
+playButton = Button(this).apply {
+    text = "▶"
+    textSize = 42f
+    setTextColor(gold)
+    background = GradientDrawable().apply {
+        setColor(Color.TRANSPARENT)
+        shape = GradientDrawable.OVAL
+        setStroke(dp(3), gold)
     }
+    setOnClickListener {
+        toggleRadio()
+    }
+}
 
-    content.addView(
-        playButton,
-        LinearLayout.LayoutParams(dp(104), dp(104)).apply {
-            topMargin = dp(12)
-            bottomMargin = dp(28)
-        }
-    )
+content.addView(
+    playButton,
+    LinearLayout.LayoutParams(dp(104), dp(104)).apply {
+        topMargin = dp(12)
+        bottomMargin = dp(28)
+    }
+)
 
     // HANGERŐ FELIRAT
     val volumeLabel = TextView(this).apply {
