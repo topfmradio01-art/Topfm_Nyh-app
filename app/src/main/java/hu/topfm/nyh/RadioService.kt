@@ -11,16 +11,16 @@ class RadioService : MediaSessionService() {
     private var mediaSession: MediaSession? = null
 
     override fun onCreate() {
-        super.onCreate()
+    super.onCreate()
 
-        val exoPlayer = ExoPlayer.Builder(this).build()
-        player = exoPlayer
+    val exoPlayer = ExoPlayer.Builder(this).build()
+    player = exoPlayer
 
-        val metadata = MediaMetadata.Builder()
-val mediaItem = MediaItem.Builder()
-    .setUri("https://s02.diazol.hu:10012/stream")
-    .build()
+    val mediaItem = MediaItem.Builder()
+        .setUri("https://s02.diazol.hu:10012/stream")
+        .build()
 
+    exoPlayer.setMediaItem(mediaItem)
         exoPlayer.setMediaItem(mediaItem)
 
         mediaSession = MediaSession.Builder(this, exoPlayer)
