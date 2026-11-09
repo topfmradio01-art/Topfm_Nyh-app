@@ -115,7 +115,13 @@ override fun onCreate(savedInstanceState: Bundle?) {
         orientation = LinearLayout.VERTICAL
         setBackgroundColor(dark)
     }
-
+androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(root) { view, windowInsets ->
+    val navigationInsets = windowInsets.getInsets(
+        androidx.core.view.WindowInsetsCompat.Type.navigationBars()
+    )
+    view.setPadding(0, 0, 0, navigationInsets.bottom)
+    windowInsets
+} 
     val scroll = ScrollView(this).apply {
         isFillViewport = true
         isVerticalScrollBarEnabled = false
@@ -324,12 +330,12 @@ setPadding(0, dp(2), 0, 0)
     }
 
     root.addView(
-        navigation,
-        LinearLayout.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            dp(62)
-        )
-    )
+    navigation,
+    LinearLayout.LayoutParams(
+        ViewGroup.LayoutParams.MATCH_PARENT,
+        dp(72)
+    }
+)
 
     homeView = root
     setContentView(homeView)
